@@ -51,8 +51,22 @@ body {
   -webkit-backdrop-filter: blur(12px);
 }
 
+.nav-compare__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.25rem;
+}
+
+.nav-compare__brand {
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: auto;
+  display: block;
+}
+
 .nav-compare__title {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 1.25rem;
   font-weight: 600;
   color: #151515;
@@ -111,7 +125,7 @@ body {
   box-shadow: var(--glass-shadow);
   backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.35);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .nav-compare__shell::before {
@@ -165,6 +179,12 @@ body {
   position: relative;
   z-index: 1;
   background: transparent;
+  overflow: visible;
+}
+
+.nav-compare__sidebar .pf-v6-c-nav,
+.nav-compare__sidebar .pf-v6-c-nav__list {
+  overflow: visible;
 }
 
 .nav-compare__sidebar .pf-v6-c-nav {
@@ -283,6 +303,48 @@ body {
   font-weight: 400;
 }
 
-.nav-compare__body {
-  display: none;
+/* Description tooltip anchored to the active nav item */
+.nav-compare__nav-host {
+  position: relative;
+}
+
+/* Portaled to document.body — below the nav item, pointer up */
+.nav-compare__tip {
+  position: fixed;
+  z-index: 10000;
+  width: min(260px, 48vw);
+  padding: 0.7rem 0.85rem;
+  border-radius: 10px;
+  background: #1f1f1f;
+  color: #f5f5f5;
+  font-size: 0.75rem;
+  font-weight: 400;
+  line-height: 1.45;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+  transform: translateX(-50%);
+  animation: nav-tip-in 180ms ease-out;
+  pointer-events: none;
+}
+
+.nav-compare__tip::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  width: 12px;
+  height: 12px;
+  background: #1f1f1f;
+  transform: translateX(-50%) rotate(45deg);
+  border-radius: 2px;
+}
+
+@keyframes nav-tip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
 }

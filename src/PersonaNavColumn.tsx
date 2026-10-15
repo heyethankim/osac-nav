@@ -1,4 +1,11 @@
-import { useState, type FormEvent, type MouseEvent as ReactMouseEvent } from 'react'
+import {
+  useLayoutEffect,
+  useRef,
+  useState,
+  type FormEvent,
+  type MouseEvent as ReactMouseEvent,
+} from 'react'
+import { createPortal } from 'react-dom'
 import {
   Nav,
   NavExpandable,
@@ -10,18 +17,83 @@ import type { PersonaNavConfig } from './navData'
 
 type PersonaNavColumnProps = {
   config: PersonaNavConfig
+  /** Only the active persona column may show a tooltip */
+  tipActive: boolean
+  onActivate: () => void
 }
 
-export function PersonaNavColumn({ config }: PersonaNavColumnProps) {
+type TipState = {
+  text: string
+  top: number
+  left: number
+}
+
+function findDescription(
+  config: PersonaNavConfig,
+  activeItem: string,
+): string | null {
+  for (const row of config.nav) {
+    if (row.kind === 'link' && row.id === activeItem && row.description) {
+      return row.description
+    }
+    if (row.kind === 'expand') {
+      const child = row.children.find(
+        (c) => c.id === activeItem && c.description,
+      )
+      if (child?.description) return child.description
+    }
+  }
+  return null
+}
+
+export function PersonaNavColumn({
+  config,
+  tipActive,
+  onActivate,
+}: PersonaNavColumnProps) {
   const [activeItem, setActiveItem] = useState(config.activeItem)
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(config.defaultExpanded.map((id) => [id, true])),
   )
+  const [tip, setTip] = useState<TipState | null>(null)
+  const hostRefs = useRef<Map<string, HTMLDivElement | null>>(new Map())
+
+  const description = tipActive ? findDescription(config, activeItem) : null
+
+  useLayoutEffect(() => {
+    if (!description) {
+      setTip(null)
+      return
+    }
+
+    const update = () => {
+      const host = hostRefs.current.get(activeItem)
+      if (!host) {
+        setTip(null)
+        return
+      }
+      const rect = host.getBoundingClientRect()
+      setTip({
+        text: description,
+        top: rect.bottom + 12,
+        left: rect.left + rect.width / 2,
+      })
+    }
+
+    update()
+    window.addEventListener('resize', update)
+    window.addEventListener('scroll', update, true)
+    return () => {
+      window.removeEventListener('resize', update)
+      window.removeEventListener('scroll', update, true)
+    }
+  }, [activeItem, description])
 
   const onNavSelect = (
     _event: FormEvent<HTMLInputElement>,
     result: { itemId: number | string },
   ) => {
+    onActivate()
     setActiveItem(String(result.itemId))
   }
 
@@ -33,6 +105,10 @@ export function PersonaNavColumn({ config }: PersonaNavColumnProps) {
       ...prev,
       [String(result.groupId)]: result.isExpanded,
     }))
+  }
+
+  const setHostRef = (id: string, node: HTMLDivElement | null) => {
+    hostRefs.current.set(id, node)
   }
 
   return (
@@ -55,15 +131,20 @@ export function PersonaNavColumn({ config }: PersonaNavColumnProps) {
               {config.nav.map((row) => {
                 if (row.kind === 'link') {
                   return (
-                    <NavItem
+                    <div
                       key={row.id}
-                      preventDefault
-                      to={`#${config.id}-${row.id}`}
-                      itemId={row.id}
-                      isActive={activeItem === row.id}
+                      className="nav-compare__nav-host"
+                      ref={(node) => setHostRef(row.id, node)}
                     >
-                      {row.label}
-                    </NavItem>
+                      <NavItem
+                        preventDefault
+                        to={`#${config.id}-${row.id}`}
+                        itemId={row.id}
+                        isActive={activeItem === row.id}
+                      >
+                        {row.label}
+                      </NavItem>
+                    </div>
                   )
                 }
 
@@ -79,16 +160,21 @@ export function PersonaNavColumn({ config }: PersonaNavColumnProps) {
                     isExpanded={expanded[row.groupId] ?? false}
                   >
                     {row.children.map((child) => (
-                      <NavItem
+                      <div
                         key={child.id}
-                        preventDefault
-                        to={`#${config.id}-${child.id}`}
-                        groupId={row.groupId}
-                        itemId={child.id}
-                        isActive={activeItem === child.id}
+                        className="nav-compare__nav-host"
+                        ref={(node) => setHostRef(child.id, node)}
                       >
-                        {child.label}
-                      </NavItem>
+                        <NavItem
+                          preventDefault
+                          to={`#${config.id}-${child.id}`}
+                          groupId={row.groupId}
+                          itemId={child.id}
+                          isActive={activeItem === child.id}
+                        >
+                          {child.label}
+                        </NavItem>
+                      </div>
                     ))}
                   </NavExpandable>
                 )
@@ -96,8 +182,21 @@ export function PersonaNavColumn({ config }: PersonaNavColumnProps) {
             </NavList>
           </Nav>
         </div>
-
       </div>
+
+      {tip
+        ? createPortal(
+            <aside
+              className="nav-compare__tip"
+              role="tooltip"
+              aria-live="polite"
+              style={{ top: tip.top, left: tip.left }}
+            >
+              {tip.text}
+            </aside>,
+            document.body,
+          )
+        : null}
     </section>
   )
 }
