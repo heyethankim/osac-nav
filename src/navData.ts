@@ -30,7 +30,7 @@ export const providerAdminNav: PersonaNavConfig = {
   id: 'provider-admin',
   label: 'Provider Admin',
   activeItem: 'tenants',
-  defaultExpanded: ['administration', 'compute', 'networking', 'storage'],
+  defaultExpanded: ['administration', 'networking', 'storage', 'instance-types'],
   nav: [
     {
       kind: 'link',
@@ -62,25 +62,6 @@ export const providerAdminNav: PersonaNavConfig = {
           label: 'Billing',
           description:
             'See how usage turns into charges across tenants — the money side of the platform.',
-        },
-      ],
-    },
-    {
-      kind: 'expand',
-      groupId: 'compute',
-      label: 'Compute',
-      children: [
-        {
-          id: 'bare-metal-instance-types',
-          label: 'Bare metal instance types',
-          description:
-            'Define the bare metal “sizes” tenants can pick from — CPUs, memory, GPUs, the works.',
-        },
-        {
-          id: 'instance-types',
-          label: 'Virtual machine instance types',
-          description:
-            'Same idea as bare metal flavors, but for VMs — the shapes people choose when they launch.',
         },
       ],
     },
@@ -119,6 +100,25 @@ export const providerAdminNav: PersonaNavConfig = {
           label: 'Disk images',
           description:
             'Curate the OS and disk images people use when they spin up virtual machines.',
+        },
+      ],
+    },
+    {
+      kind: 'expand',
+      groupId: 'instance-types',
+      label: 'Instance types',
+      children: [
+        {
+          id: 'bare-metal-instance-types',
+          label: 'Bare metal',
+          description:
+            'Define the bare metal “sizes” tenants can pick from — CPUs, memory, GPUs, the works.',
+        },
+        {
+          id: 'vm-instance-types',
+          label: 'Virtual machines',
+          description:
+            'Same idea as bare metal flavors, but for VMs — the shapes people choose when they launch.',
         },
       ],
     },
