@@ -15,7 +15,11 @@ export type NavExpand = {
 
 export type NavRow = NavLink | NavExpand
 
-export type PersonaId = 'provider-admin' | 'tenant-admin' | 'tenant-user'
+export type PersonaId =
+  | 'provider-admin'
+  | 'tenant-admin'
+  | 'tenant-user'
+  | 'idp-manager'
 
 export type PersonaNavConfig = {
   id: PersonaId
@@ -30,7 +34,7 @@ export const providerAdminNav: PersonaNavConfig = {
   id: 'provider-admin',
   label: 'Provider Admin',
   activeItem: 'tenants',
-  defaultExpanded: ['administration', 'networking', 'storage', 'instance-types'],
+  defaultExpanded: ['administration', 'networking', 'storage', 'compute'],
   nav: [
     {
       kind: 'link',
@@ -95,30 +99,24 @@ export const providerAdminNav: PersonaNavConfig = {
           description:
             'Package backends into performance tiers so tenants can pick “fast” vs “cheap” without the plumbing.',
         },
+      ],
+    },
+    {
+      kind: 'expand',
+      groupId: 'compute',
+      label: 'Compute',
+      children: [
+        {
+          id: 'instance-types',
+          label: 'Instance types',
+          description:
+            'Define the “sizes” tenants can pick from for bare metal and virtual machines — CPUs, memory, GPUs, the works.',
+        },
         {
           id: 'disk-images',
           label: 'Disk images',
           description:
             'Curate the OS and disk images people use when they spin up virtual machines.',
-        },
-      ],
-    },
-    {
-      kind: 'expand',
-      groupId: 'instance-types',
-      label: 'Instance types',
-      children: [
-        {
-          id: 'bare-metal-instance-types',
-          label: 'Bare metal',
-          description:
-            'Define the bare metal “sizes” tenants can pick from — CPUs, memory, GPUs, the works.',
-        },
-        {
-          id: 'vm-instance-types',
-          label: 'Virtual machines',
-          description:
-            'Same idea as bare metal flavors, but for VMs — the shapes people choose when they launch.',
         },
       ],
     },
@@ -345,8 +343,33 @@ export const tenantUserNav: PersonaNavConfig = {
   ],
 }
 
+/** IdP Manager */
+export const idpManagerNav: PersonaNavConfig = {
+  id: 'idp-manager',
+  label: 'IdP Manager',
+  activeItem: 'identity-provider',
+  defaultExpanded: [],
+  nav: [
+    {
+      kind: 'link',
+      id: 'identity-provider',
+      label: 'Identity provider',
+      description:
+        'Plug in how people sign in — connect your IdP so the right folks get access.',
+    },
+    {
+      kind: 'link',
+      id: 'roles',
+      label: 'Roles',
+      description:
+        'Decide who can do what — bind people to roles across the tenant.',
+    },
+  ],
+}
+
 export const personasInOrder: PersonaNavConfig[] = [
   providerAdminNav,
   tenantAdminNav,
   tenantUserNav,
+  idpManagerNav,
 ]

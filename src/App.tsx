@@ -22,7 +22,7 @@ export default function App() {
           </h1>
         </div>
         <p className="nav-compare__subtitle">
-          Provider Admin · Tenant Admin · Tenant User — side-by-side prototype.
+          Provider Admin · Tenant Admin · Tenant User · IdP Manager — side-by-side prototype.
           Pages are read-only for the dev preview.
         </p>
       </header>
