@@ -76,7 +76,7 @@ export function PersonaNavColumn({
       setTip({
         text: description,
         top: rect.bottom + 12,
-        left: rect.left + rect.width / 2,
+        left: rect.left + rect.width / 2 + 48,
       })
     }
 
